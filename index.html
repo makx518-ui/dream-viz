@@ -3,102 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dream Visualization</title>
+    <title>Визуализация Сна</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <!-- Загрузка -->
-        <div id="loading" class="loading">
-            <div class="spinner"></div>
-            <p>Загружаем визуализацию сна...</p>
-        </div>
+        <h1>Визуализация Сна</h1>
 
-        <!-- Основной контент -->
-        <div id="content" class="content hidden">
-            <!-- Заголовок -->
-            <header class="header">
-                <h1>🌙 Визуализация Сна</h1>
-                <div class="dream-id"></div>
-            </header>
-
-            <!-- Метрики -->
-            <section class="metrics">
-                <div class="metric-card">
-                    <div class="metric-icon">⚖️</div>
-                    <div class="metric-label">Эмоциональный баланс</div>
-                    <div class="metric-value" id="emotionalBalance">-</div>
-                    <div class="metric-bar">
-                        <div class="metric-fill" id="emotionalBalanceFill"></div>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-icon">⚡</div>
-                    <div class="metric-label">Интенсивность</div>
-                    <div class="metric-value" id="intensity">-</div>
-                    <div class="metric-bar">
-                        <div class="metric-fill" id="intensityFill"></div>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-icon">💭</div>
-                    <div class="metric-label">Осознанность</div>
-                    <div class="metric-value" id="lucidity">-</div>
-                    <div class="metric-bar">
-                        <div class="metric-fill" id="lucidityFill"></div>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-icon">🎨</div>
-                    <div class="metric-label">Плотность символов</div>
-                    <div class="metric-value" id="symbolDensity">-</div>
-                    <div class="metric-bar">
-                        <div class="metric-fill" id="symbolDensityFill"></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Вкладки -->
-            <nav class="tabs">
-                <button class="tab active" data-tab="symbols">🔮 Символы</button>
-                <button class="tab" data-tab="emotions">💫 Эмоции</button>
-                <button class="tab" data-tab="archetypes">🎭 Архетипы</button>
-                <button class="tab" data-tab="insights">💡 Инсайты</button>
-            </nav>
-
-            <!-- Контент вкладок -->
-            <div class="tab-content">
-                <!-- Символы -->
-                <div id="symbols-tab" class="tab-pane active">
-                    <div class="symbols-grid" id="symbolsGrid"></div>
-                </div>
-
-                <!-- Эмоции -->
-                <div id="emotions-tab" class="tab-pane hidden">
-                    <div class="emotions-timeline" id="emotionsTimeline"></div>
-                </div>
-
-                <!-- Архетипы -->
-                <div id="archetypes-tab" class="tab-pane hidden">
-                    <div class="archetypes-grid" id="archetypesGrid"></div>
-                </div>
-
-                <!-- Инсайты -->
-                <div id="insights-tab" class="tab-pane hidden">
-                    <div class="insights-list" id="insightsList"></div>
-                </div>
+        <!-- Метрики -->
+        <div class="metrics">
+            <div class="metric">
+                <span class="metric-name">Эмоциональный баланс</span>
+                <span class="metric-value" id="emotionalBalanceValue">-</span>
+            </div>
+            <div class="metric">
+                <span class="metric-name">Интенсивность</span>
+                <span class="metric-value" id="intensityValue">-</span>
+            </div>
+            <div class="metric">
+                <span class="metric-name">Осознанность</span>
+                <span class="metric-value" id="lucidityValue">-</span>
+            </div>
+            <div class="metric">
+                <span class="metric-name">Плотность символов</span>
+                <span class="metric-value" id="symbolDensityValue">-</span>
             </div>
         </div>
 
-        <!-- Ошибка -->
-        <div id="error" class="error hidden">
-            <div class="error-icon">❌</div>
-            <h2>Ошибка загрузки</h2>
-            <p id="errorMessage">Не удалось загрузить данные сна</p>
-            <button onclick="location.reload()" class="retry-btn">Попробовать снова</button>
+        <!-- Текст сна -->
+        <div class="section">
+            <h2>Текст сна</h2>
+            <div class="content" id="dreamTextDisplay">Здесь будет отображен ваш сон.</div>
+        </div>
+
+        <!-- Трактовка -->
+        <div class="section">
+            <h2>Трактовка</h2>
+            <div class="content" id="interpretationDisplay">Здесь будет отображена трактовка вашего сна.</div>
         </div>
     </div>
 
+    <!-- Подключаем наш JavaScript -->
     <script src="app.js"></script>
 </body>
 </html>
