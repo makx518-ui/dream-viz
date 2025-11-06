@@ -2,8 +2,20 @@
 function getURLParams() {
     const params = new URLSearchParams(window.location.search);
     return {
-        id: params.get('id')
+        id: params.get('id'),
+        data: params.get('data')
     };
+}
+
+// Декодирование данных из Base64
+function decodeData(encodedData) {
+    try {
+        const jsonString = atob(encodedData);
+        return JSON.parse(jsonString);
+    } catch (error) {
+        console.error('Ошибка декодирования данных:', error);
+        return null;
+    }
 }
 
 // Демо данные для тестирования
@@ -108,20 +120,26 @@ const DEMO_DATA = {
 };
 
 // Загрузка данных
-async function loadDreamData(dreamId) {
+async function loadDreamData(dreamId, encodedData) {
     try {
-        // Если нет ID или это демо - используем демо данные
+        // Если есть данные в URL - используем их!
+        if (encodedData) {
+            console.log('Загружаю данные из URL');
+            const data = decodeData(encodedData);
+            if (data) {
+                console.log('Данные успешно декодированы:', data);
+                return data;
+            }
+        }
+        
+        // Если нет данных в URL или это демо - используем демо данные
         if (!dreamId || dreamId === 'demo') {
             console.log('Используем демо данные');
             return DEMO_DATA;
         }
 
-        // В будущем здесь будет загрузка с сервера
-        // const response = await fetch(`https://your-server.com/api/dreams/${dreamId}`);
-        // return await response.json();
-        
         // Пока возвращаем демо данные
-        console.log('Загрузка реальных данных пока недоступна, используем демо');
+        console.log('Используем демо данные (данные в URL не найдены)');
         return DEMO_DATA;
         
     } catch (error) {
@@ -283,9 +301,10 @@ async function init() {
         const params = getURLParams();
         
         console.log('Dream ID:', params.id);
+        console.log('Encoded Data:', params.data ? 'Есть данные' : 'Нет данных');
         
-        // Загружаем данные
-        const data = await loadDreamData(params.id);
+        // Загружаем данные (из URL или демо)
+        const data = await loadDreamData(params.id, params.data);
         
         console.log('Данные загружены:', data);
         
