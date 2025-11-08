@@ -39,9 +39,17 @@ async function loadDreamData() {
     
     if (dreamDataEncoded) {
         try {
-            // Декодируем данные из base64
-            const dreamDataJson = atob(dreamDataEncoded);
-            dreamData = JSON.parse(dreamDataJson);
+            // ПРАВИЛЬНОЕ декодирование UTF-8 из base64
+            const base64Decoded = atob(dreamDataEncoded);
+            
+            // Преобразуем в UTF-8
+            const utf8Decoded = decodeURIComponent(
+                base64Decoded.split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join('')
+            );
+            
+            dreamData = JSON.parse(utf8Decoded);
             console.log('📥 Загружены данные из Telegram!');
             return;
         } catch (e) {
