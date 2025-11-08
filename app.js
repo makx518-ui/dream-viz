@@ -5,7 +5,8 @@ let tg = window.Telegram?.WebApp || {
         setText: function() { return this; },
         show: function() { return this; },
         onClick: function() { return this; }
-    }
+    },
+    initDataUnsafe: {}
 };
 
 if (tg.expand) tg.expand();
@@ -32,22 +33,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Загрузка данных
 async function loadDreamData() {
+    // НОВОЕ: Читаем данные из Telegram WebApp
     const urlParams = new URLSearchParams(window.location.search);
-    const dreamId = urlParams.get('id');
+    const dreamDataEncoded = urlParams.get('data');
     
-    if (dreamId) {
+    if (dreamDataEncoded) {
         try {
-            const response = await fetch(`https://YOUR-GITHUB-USERNAME.github.io/dream-viz/data/${dreamId}.json`);
-            dreamData = await response.json();
-            console.log('📥 Загружены данные сна:', dreamId);
+            // Декодируем данные из base64
+            const dreamDataJson = atob(dreamDataEncoded);
+            dreamData = JSON.parse(dreamDataJson);
+            console.log('📥 Загружены данные из Telegram!');
+            return;
         } catch (e) {
-            console.warn('⚠️ Не удалось загрузить данные, используем тестовые');
-            dreamData = getTestDreamData();
+            console.warn('⚠️ Ошибка декодирования данных:', e);
         }
-    } else {
-        console.log('📝 Используем тестовые данные');
-        dreamData = getTestDreamData();
     }
+    
+    // Если не получилось - используем тестовые данные
+    console.log('📝 Используем тестовые данные');
+    dreamData = getTestDreamData();
 }
 
 // Тестовые данные
@@ -100,68 +104,30 @@ function hideLoader() {
         setTimeout(() => {
             loader.style.display = 'none';
             app.style.display = 'block';
-            console.log('✅ Loader скрыт, контент показан');
         }, 500);
-    }, 1000);
+    }, 500);
 }
 
 // Показать ошибку
 function showError(message) {
-    console.error('💥 Показываем ошибку:', message);
     const loader = document.getElementById('loader');
     loader.innerHTML = `
         <div class="loader-content">
-            <div style="font-size: 80px;">😔</div>
-            <div style="margin-top: 20px; font-size: 18px;">${message}</div>
+            <div style="font-size: 80px;">❌</div>
+            <div class="loader-text" style="color: #ec4899;">${message}</div>
         </div>
     `;
 }
 
-// Рендер всех визуализаций
+// Рендерим все визуализации
 function renderAllVisualizations() {
-    console.log('🎨 Рендерим визуализации...');
-    
-    try {
-        renderMindMap();
-        console.log('✅ Mind Map готов');
-    } catch (e) {
-        console.error('❌ Ошибка Mind Map:', e);
-    }
-    
-    try {
-        renderEmotionJourney();
-        console.log('✅ Emotion Journey готов');
-    } catch (e) {
-        console.error('❌ Ошибка Emotion Journey:', e);
-    }
-    
-    try {
-        renderArchetypeWheel();
-        console.log('✅ Archetype Wheel готов');
-    } catch (e) {
-        console.error('❌ Ошибка Archetype Wheel:', e);
-    }
-    
-    try {
-        renderSymbolNetwork();
-        console.log('✅ Symbol Network готов');
-    } catch (e) {
-        console.error('❌ Ошибка Symbol Network:', e);
-    }
-    
-    try {
-        renderInsightsPanel();
-        console.log('✅ Insights Panel готов');
-    } catch (e) {
-        console.error('❌ Ошибка Insights Panel:', e);
-    }
-    
-    try {
-        renderMetricsPanel();
-        console.log('✅ Metrics Panel готов');
-    } catch (e) {
-        console.error('❌ Ошибка Metrics Panel:', e);
-    }
+    renderMindMap();
+    renderEmotionChart();
+    renderArchetypeWheel();
+    renderSymbolNetwork();
+    renderInsights();
+    renderMetrics();
+    setupModal();
 }
 
 // 1. MIND MAP
@@ -234,8 +200,8 @@ function showSymbolDetails(symbol) {
     modal.style.display = 'block';
 }
 
-// 2. EMOTION JOURNEY
-function renderEmotionJourney() {
+// 2. EMOTION CHART  
+function renderEmotionChart() {
     const ctx = document.getElementById('emotionChart').getContext('2d');
     
     new Chart(ctx, {
@@ -394,7 +360,7 @@ function renderSymbolNetwork() {
 }
 
 // 5. INSIGHTS PANEL
-function renderInsightsPanel() {
+function renderInsights() {
     const container = document.getElementById('insightsPanel');
     container.innerHTML = '';
     
@@ -421,7 +387,7 @@ function renderInsightsPanel() {
 }
 
 // 6. METRICS PANEL
-function renderMetricsPanel() {
+function renderMetrics() {
     const container = document.getElementById('metricsPanel');
     container.innerHTML = '';
     
@@ -443,15 +409,17 @@ function renderMetricsPanel() {
     });
 }
 
-// Закрытие модального окна
-document.addEventListener('click', (e) => {
-    const modal = document.getElementById('modal');
-    const modalClose = document.querySelector('.modal-close');
-    
-    if (e.target === modal || e.target === modalClose) {
-        modal.style.display = 'none';
-    }
-});
+// Modal setup
+function setupModal() {
+    document.addEventListener('click', (e) => {
+        const modal = document.getElementById('modal');
+        const modalClose = document.querySelector('.modal-close');
+        
+        if (e.target === modal || e.target === modalClose) {
+            modal.style.display = 'none';
+        }
+    });
+}
 
 // Telegram кнопка
 if (tg.MainButton) {
