@@ -246,17 +246,35 @@ function showError(message) {
 
 // Рендерим все визуализации
 function renderAllVisualizations() {
-    renderMindMap();
+    // Сначала рисуем Chart.js и обычные элементы
     renderEmotionChart();
     renderArchetypeWheel();
-    renderSymbolNetwork();
     renderInsights();
     renderMetrics();
     setupModal();
+    
+    // D3.js рисуем с задержкой (контейнеры должны быть готовы!)
+    setTimeout(() => {
+        console.log('🎨 Рисую D3 визуализации с задержкой...');
+        renderMindMap();
+        renderSymbolNetwork();
+    }, 500);
 }
 
 // 1. MIND MAP
 function renderMindMap() {
+    console.log('🧠 Рисую Mind Map...');
+    console.log('📊 dreamData:', dreamData);
+    console.log('📊 symbols:', dreamData?.symbols);
+    
+    // Проверка данных
+    if (!dreamData || !dreamData.symbols || dreamData.symbols.length === 0) {
+        console.error('❌ Mind Map: нет данных symbols!');
+        const container = d3.select('#mindmap');
+        container.html('<div style="padding: 40px; text-align: center; color: #a0a8cc;">⚠️ Нет данных для карты символов</div>');
+        return;
+    }
+    
     const container = d3.select('#mindmap');
     const width = container.node().getBoundingClientRect().width;
     const height = 400;
@@ -274,6 +292,8 @@ function renderMindMap() {
             meaning: s.meaning
         }))
     };
+    
+    console.log('✅ Mind Map: ' + dreamData.symbols.length + ' символов');
     
     const treeLayout = d3.tree().size([width - 100, height - 100]);
     const hierarchy = d3.hierarchy(root);
@@ -431,6 +451,18 @@ function showArchetypeDetails(archetype) {
 
 // 4. SYMBOL NETWORK
 function renderSymbolNetwork() {
+    console.log('🌐 Рисую Symbol Network...');
+    console.log('📊 dreamData:', dreamData);
+    console.log('📊 symbols:', dreamData?.symbols);
+    
+    // Проверка данных
+    if (!dreamData || !dreamData.symbols || dreamData.symbols.length === 0) {
+        console.error('❌ Symbol Network: нет данных symbols!');
+        const container = d3.select('#symbolNetwork');
+        container.html('<div style="padding: 40px; text-align: center; color: #a0a8cc;">⚠️ Нет данных для сети связей</div>');
+        return;
+    }
+    
     const container = d3.select('#symbolNetwork');
     const width = container.node().getBoundingClientRect().width;
     const height = 400;
@@ -451,6 +483,8 @@ function renderSymbolNetwork() {
             });
         }
     });
+    
+    console.log('✅ Symbol Network: ' + nodes.length + ' узлов, ' + links.length + ' связей');
     
     const simulation = d3.forceSimulation(nodes)
         .force('link', d3.forceLink(links).id(d => d.id).distance(100))
