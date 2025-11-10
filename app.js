@@ -246,19 +246,43 @@ function showError(message) {
 
 // Рендерим все визуализации
 function renderAllVisualizations() {
-    // Сначала рисуем Chart.js и обычные элементы
+    console.log('🎨 Начинаю рендеринг всех визуализаций...');
+    
+    // Сначала базовые элементы
     renderEmotionChart();
     renderArchetypeWheel();
     renderInsights();
     renderMetrics();
     setupModal();
     
-    // D3.js рисуем с задержкой (контейнеры должны быть готовы!)
+    // D3 визуализации - с задержкой и проверкой размеров
     setTimeout(() => {
-        console.log('🎨 Рисую D3 визуализации с задержкой...');
-        renderMindMap();
-        renderSymbolNetwork();
-    }, 500);
+        console.log('🎨 Запускаю D3 визуализации...');
+        
+        // Проверяем размер контейнера Mind Map
+        const mindmapContainer = document.getElementById('mindmap');
+        if (mindmapContainer) {
+            const width = mindmapContainer.offsetWidth;
+            console.log('📏 Mind Map контейнер ширина:', width);
+            if (width > 0) {
+                renderMindMap();
+            } else {
+                console.error('❌ Mind Map контейнер имеет 0 ширину!');
+            }
+        }
+        
+        // Проверяем размер контейнера Symbol Network
+        const networkContainer = document.getElementById('symbolNetwork');
+        if (networkContainer) {
+            const width = networkContainer.offsetWidth;
+            console.log('📏 Symbol Network контейнер ширина:', width);
+            if (width > 0) {
+                renderSymbolNetwork();
+            } else {
+                console.error('❌ Symbol Network контейнер имеет 0 ширину!');
+            }
+        }
+    }, 1000);
 }
 
 // 1. MIND MAP
@@ -267,23 +291,40 @@ function renderMindMap() {
     console.log('📊 dreamData:', dreamData);
     console.log('📊 symbols:', dreamData?.symbols);
     
+    const container = d3.select('#mindmap');
+    const containerNode = container.node();
+    
     // Проверка данных
     if (!dreamData || !dreamData.symbols || dreamData.symbols.length === 0) {
         console.error('❌ Mind Map: нет данных symbols!');
-        const container = d3.select('#mindmap');
         container.html('<div style="padding: 40px; text-align: center; color: #a0a8cc;">⚠️ Нет данных для карты символов</div>');
         return;
     }
     
-    const container = d3.select('#mindmap');
-    const width = container.node().getBoundingClientRect().width;
+    // Проверка контейнера
+    if (!containerNode) {
+        console.error('❌ Mind Map: контейнер не найден!');
+        return;
+    }
+    
+    const rect = containerNode.getBoundingClientRect();
+    const width = rect.width || 600;
     const height = 400;
+    
+    console.log('📏 Mind Map размеры:', width, 'x', height);
+    
+    if (width < 50) {
+        console.error('❌ Mind Map: контейнер слишком узкий:', width);
+        container.html('<div style="padding: 40px; text-align: center; color: #a0a8cc;">⚠️ Контейнер слишком мал</div>');
+        return;
+    }
     
     container.selectAll('*').remove();
     
     const svg = container.append('svg')
         .attr('width', width)
-        .attr('height', height);
+        .attr('height', height)
+        .style('background', 'transparent');
     
     const root = {
         name: 'СОН',
@@ -299,11 +340,15 @@ function renderMindMap() {
     const hierarchy = d3.hierarchy(root);
     treeLayout(hierarchy);
     
+    // Линии связей
     svg.selectAll('.link')
         .data(hierarchy.links())
         .enter()
         .append('path')
         .attr('class', 'link')
+        .attr('fill', 'none')
+        .attr('stroke', '#7c3aed')
+        .attr('stroke-width', 2)
         .attr('d', d3.linkVertical()
             .x(d => d.x + 50)
             .y(d => d.y + 50));
@@ -322,6 +367,9 @@ function renderMindMap() {
     
     nodes.append('text')
         .attr('dy', d => d.depth === 0 ? 40 : 30)
+        .attr('text-anchor', 'middle')
+        .attr('fill', '#e0e6ff')
+        .style('font-size', '12px')
         .text(d => d.data.name);
     
     nodes.style('opacity', 0)
@@ -329,6 +377,8 @@ function renderMindMap() {
         .duration(1000)
         .delay((d, i) => i * 100)
         .style('opacity', 1);
+    
+    console.log('✅ Mind Map отрисован успешно!');
 }
 
 function showSymbolDetails(symbol) {
@@ -455,23 +505,40 @@ function renderSymbolNetwork() {
     console.log('📊 dreamData:', dreamData);
     console.log('📊 symbols:', dreamData?.symbols);
     
+    const container = d3.select('#symbolNetwork');
+    const containerNode = container.node();
+    
     // Проверка данных
     if (!dreamData || !dreamData.symbols || dreamData.symbols.length === 0) {
         console.error('❌ Symbol Network: нет данных symbols!');
-        const container = d3.select('#symbolNetwork');
         container.html('<div style="padding: 40px; text-align: center; color: #a0a8cc;">⚠️ Нет данных для сети связей</div>');
         return;
     }
     
-    const container = d3.select('#symbolNetwork');
-    const width = container.node().getBoundingClientRect().width;
+    // Проверка контейнера
+    if (!containerNode) {
+        console.error('❌ Symbol Network: контейнер не найден!');
+        return;
+    }
+    
+    const rect = containerNode.getBoundingClientRect();
+    const width = rect.width || 600;
     const height = 400;
+    
+    console.log('📏 Symbol Network размеры:', width, 'x', height);
+    
+    if (width < 50) {
+        console.error('❌ Symbol Network: контейнер слишком узкий:', width);
+        container.html('<div style="padding: 40px; text-align: center; color: #a0a8cc;">⚠️ Контейнер слишком мал</div>');
+        return;
+    }
     
     container.selectAll('*').remove();
     
     const svg = container.append('svg')
         .attr('width', width)
-        .attr('height', height);
+        .attr('height', height)
+        .style('background', 'transparent');
     
     const nodes = dreamData.symbols.map((s, i) => ({ id: s.name, group: i }));
     
@@ -492,10 +559,15 @@ function renderSymbolNetwork() {
         .force('center', d3.forceCenter(width / 2, height / 2));
     
     const link = svg.append('g').selectAll('line').data(links).enter()
-        .append('line').attr('class', 'symbol-link');
+        .append('line')
+        .attr('class', 'symbol-link')
+        .attr('stroke', '#7c3aed')
+        .attr('stroke-width', 2)
+        .attr('stroke-opacity', 0.6);
     
     const node = svg.append('g').selectAll('g').data(nodes).enter()
-        .append('g').attr('class', 'symbol-node')
+        .append('g')
+        .attr('class', 'symbol-node')
         .call(d3.drag()
             .on('start', (e, d) => {
                 if (!e.active) simulation.alphaTarget(0.3).restart();
@@ -507,15 +579,24 @@ function renderSymbolNetwork() {
                 d.fx = null; d.fy = null;
             }));
     
-    node.append('circle').attr('r', 12).attr('fill', (d, i) => d3.schemeCategory10[i % 10]);
-    node.append('text').attr('dx', 15).attr('dy', 5).text(d => d.id)
-        .style('fill', '#e0e6ff').style('font-size', '12px');
+    node.append('circle')
+        .attr('r', 12)
+        .attr('fill', (d, i) => d3.schemeCategory10[i % 10]);
+    
+    node.append('text')
+        .attr('dx', 15)
+        .attr('dy', 5)
+        .text(d => d.id)
+        .style('fill', '#e0e6ff')
+        .style('font-size', '12px');
     
     simulation.on('tick', () => {
         link.attr('x1', d => d.source.x).attr('y1', d => d.source.y)
             .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
         node.attr('transform', d => `translate(${d.x},${d.y})`);
     });
+    
+    console.log('✅ Symbol Network отрисован успешно!');
 }
 
 // 5. INSIGHTS PANEL
