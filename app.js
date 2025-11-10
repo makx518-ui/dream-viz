@@ -1,21 +1,103 @@
-// Telegram WebApp или заглушка для локального теста
+// ========== TELEGRAM WEBAPP ИНТЕГРАЦИЯ ==========
 let tg = window.Telegram?.WebApp || {
-    expand: function() {},
+    expand: function() { console.log('Expand not available'); },
+    ready: function() { console.log('Ready not available'); },
+    close: function() { console.log('Close not available'); },
+    BackButton: {
+        show: function() { return this; },
+        hide: function() { return this; },
+        onClick: function() { return this; }
+    },
     MainButton: {
         setText: function() { return this; },
         show: function() { return this; },
+        hide: function() { return this; },
         onClick: function() { return this; }
     },
-    initDataUnsafe: {}
+    themeParams: {
+        bg_color: '#1a1a2e',
+        text_color: '#ffffff',
+        hint_color: '#aaaaaa',
+        button_color: '#667eea',
+        button_text_color: '#ffffff'
+    },
+    initDataUnsafe: {},
+    viewportHeight: window.innerHeight,
+    viewportStableHeight: window.innerHeight,
+    isExpanded: false
 };
 
-if (tg.expand) tg.expand();
+// ========== ИНИЦИАЛИЗАЦИЯ TELEGRAM ==========
+console.log('🚀 Инициализация Telegram WebApp...');
+
+// Expand на весь экран (КРИТИЧНО!)
+try {
+    if (tg.expand) {
+        tg.expand();
+        console.log('✅ Экран расширен');
+    }
+    if (tg.ready) {
+        tg.ready();
+        console.log('✅ WebApp готов');
+    }
+} catch (e) {
+    console.warn('⚠️ Ошибка expand/ready:', e);
+}
+
+// Кнопка "Назад" (НЕ ЛОМАЕТ БОТ - только в WebApp!)
+try {
+    if (tg.BackButton && tg.BackButton.show) {
+        tg.BackButton.onClick(() => {
+            console.log('👈 Закрытие WebApp...');
+            if (tg.close) tg.close();
+        });
+        tg.BackButton.show();
+        console.log('✅ Кнопка "Назад" активна');
+    }
+} catch (e) {
+    console.warn('⚠️ Кнопка "Назад" недоступна:', e);
+}
+
+// Получаем данные пользователя
+const user = tg.initDataUnsafe?.user || {};
+const userId = user.id || 'demo';
+const userName = user.first_name || 'Гость';
+
+console.log('👤 Пользователь:', userName, '(ID:', userId, ')');
 
 let dreamData = null;
+
+// ========== ПРИМЕНЕНИЕ ТЕМЫ TELEGRAM ==========
+function applyTelegramTheme() {
+    console.log('🎨 Применяю тему Telegram...');
+    try {
+        if (tg.themeParams) {
+            const root = document.documentElement;
+            const body = document.body;
+            
+            // Устанавливаем CSS переменные
+            root.style.setProperty('--tg-bg-color', tg.themeParams.bg_color || '#1a1a2e');
+            root.style.setProperty('--tg-text-color', tg.themeParams.text_color || '#ffffff');
+            root.style.setProperty('--tg-hint-color', tg.themeParams.hint_color || '#aaaaaa');
+            root.style.setProperty('--tg-button-color', tg.themeParams.button_color || '#667eea');
+            
+            // Применяем фон
+            body.style.backgroundColor = tg.themeParams.bg_color || '#1a1a2e';
+            body.style.color = tg.themeParams.text_color || '#ffffff';
+            
+            console.log('✅ Тема применена:', tg.themeParams.bg_color);
+        }
+    } catch (e) {
+        console.warn('⚠️ Ошибка применения темы:', e);
+    }
+}
 
 // Загрузка при старте
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Приложение загружается...');
+    
+    // Применяем тему Telegram
+    applyTelegramTheme();
     
     try {
         await loadDreamData();
@@ -39,21 +121,50 @@ async function loadDreamData() {
     
     if (dreamDataEncoded) {
         try {
-            // ПРАВИЛЬНОЕ декодирование UTF-8 из base64
-            const base64Decoded = atob(dreamDataEncoded);
+            console.log('📦 Получены данные от бота, декодирую...');
+            console.log('📦 Длина base64:', dreamDataEncoded.length);
             
-            // Преобразуем в UTF-8
-            const utf8Decoded = decodeURIComponent(
-                base64Decoded.split('').map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join('')
-            );
+            // ========== ПРАВИЛЬНОЕ ДЕКОДИРОВАНИЕ UTF-8 ==========
             
-            dreamData = JSON.parse(utf8Decoded);
+            // Шаг 1: Декодируем URL-safe base64
+            // Заменяем - на + и _ на / (URL-safe base64)
+            let base64 = dreamDataEncoded.replace(/-/g, '+').replace(/_/g, '/');
+            
+            // Добавляем padding если нужно
+            while (base64.length % 4) {
+                base64 += '=';
+            }
+            
+            // Шаг 2: Декодируем base64 в бинарные данные
+            const binaryString = atob(base64);
+            console.log('✅ Base64 декодирован, длина:', binaryString.length);
+            
+            // Шаг 3: Преобразуем в массив байтов
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            
+            // Шаг 4: Декодируем UTF-8 правильно!
+            const utf8Decoder = new TextDecoder('utf-8');
+            const jsonString = utf8Decoder.decode(bytes);
+            
+            console.log('✅ UTF-8 декодирован!');
+            console.log('📝 Первые 200 символов:', jsonString.substring(0, 200));
+            
+            // Шаг 5: Парсим JSON
+            dreamData = JSON.parse(jsonString);
+            
             console.log('📥 Загружены данные из Telegram!');
+            console.log('📊 Символов:', dreamData.symbols?.length || 0);
+            console.log('💫 Эмоций:', dreamData.emotions?.length || 0);
+            console.log('🎴 Архетипов:', dreamData.archetypes?.length || 0);
+            
             return;
         } catch (e) {
-            console.warn('⚠️ Ошибка декодирования данных:', e);
+            console.error('❌ Ошибка декодирования данных:', e);
+            console.error('❌ Stack:', e.stack);
+            console.warn('⚠️ Переключаюсь на тестовые данные');
         }
     }
     
@@ -104,6 +215,12 @@ function hideLoader() {
     console.log('🌙 Скрываем loader...');
     const loader = document.getElementById('loader');
     const app = document.getElementById('app');
+    
+    // Персонализируем заголовок
+    const header = document.querySelector('.header h1');
+    if (header && userName !== 'Гость') {
+        header.textContent = `🌙 ${userName}, твой сон`;
+    }
     
     setTimeout(() => {
         loader.style.transition = 'opacity 0.5s';
