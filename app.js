@@ -246,13 +246,19 @@ function showError(message) {
 
 // Рендерим все визуализации
 function renderAllVisualizations() {
-    renderMindMap();
+    // Сначала рисуем Chart.js и обычные элементы
     renderEmotionChart();
     renderArchetypeWheel();
-    renderSymbolNetwork();
     renderInsights();
     renderMetrics();
     setupModal();
+    
+    // D3.js рисуем с задержкой (контейнеры должны быть готовы!)
+    setTimeout(() => {
+        console.log('🎨 Рисую D3 визуализации с задержкой...');
+        renderMindMap();
+        renderSymbolNetwork();
+    }, 500);
 }
 
 // 1. MIND MAP
