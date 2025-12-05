@@ -499,7 +499,7 @@ function showArchetypeDetails(archetype) {
     modal.style.display = 'block';
 }
 
-// 4. SYMBOL NETWORK
+// 4. SYMBOL NETWORK (ИСПРАВЛЕНО: фильтрация связей)
 function renderSymbolNetwork() {
     console.log('🌐 Рисую Symbol Network...');
     console.log('📊 dreamData:', dreamData);
@@ -542,16 +542,32 @@ function renderSymbolNetwork() {
     
     const nodes = dreamData.symbols.map((s, i) => ({ id: s.name, group: i }));
     
+    // ========== ИСПРАВЛЕНИЕ: Фильтруем связи ==========
+    // Создаём Set всех существующих названий символов
+    const nodeIds = new Set(nodes.map(n => n.id));
+    
     const links = [];
     dreamData.symbols.forEach(symbol => {
-        if (symbol.connections) {
+        if (symbol.connections && Array.isArray(symbol.connections)) {
             symbol.connections.forEach(conn => {
-                links.push({ source: symbol.name, target: conn });
+                // Добавляем связь ТОЛЬКО если target существует в списке символов!
+                if (nodeIds.has(conn)) {
+                    links.push({ source: symbol.name, target: conn });
+                } else {
+                    console.warn('⚠️ Пропущена связь:', symbol.name, '->', conn, '(target не найден в symbols)');
+                }
             });
         }
     });
+    // ========== КОНЕЦ ИСПРАВЛЕНИЯ ==========
     
-    console.log('✅ Symbol Network: ' + nodes.length + ' узлов, ' + links.length + ' связей');
+    console.log('✅ Symbol Network: ' + nodes.length + ' узлов, ' + links.length + ' валидных связей');
+    
+    // Если нет узлов — показываем сообщение
+    if (nodes.length === 0) {
+        container.html('<div style="padding: 40px; text-align: center; color: #a0a8cc;">⚠️ Нет символов для отображения</div>');
+        return;
+    }
     
     const simulation = d3.forceSimulation(nodes)
         .force('link', d3.forceLink(links).id(d => d.id).distance(100))
