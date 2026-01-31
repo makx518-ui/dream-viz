@@ -22,79 +22,70 @@
     <div id="loader" class="loader">
         <div class="loader-content">
             <div class="moon-icon">🌙</div>
-            <div class="loader-text">Загружаем твой сон...</div>
+            <div class="loader-text" id="loader-text">Загружаем твой сон...</div>
         </div>
     </div>
-
     <!-- Главный контейнер -->
     <div id="app" class="app-container" style="display: none;">
         
         <!-- Заголовок -->
         <header class="header">
-            <h1>🌙 Визуализация Сна</h1>
-            <p class="subtitle">Интерактивное исследование подсознания</p>
+            <h1 id="main-title">🌙 Визуализация Сна</h1>
+            <p class="subtitle" id="main-subtitle">Интерактивное исследование подсознания</p>
         </header>
-
         <!-- Mind Map секция -->
         <section class="section">
             <div class="section-header">
-                <h2>🧠 Карта Символов</h2>
-                <p class="hint">Кликай на символы для подробностей</p>
+                <h2 id="mindmap-title">🧠 Карта Символов</h2>
+                <p class="hint" id="mindmap-hint">Кликай на символы для подробностей</p>
             </div>
             <div id="mindmap" class="visualization-container"></div>
         </section>
-
         <!-- Emotion Journey секция -->
         <section class="section">
             <div class="section-header">
-                <h2>💫 Эмоциональное Путешествие</h2>
-                <p class="hint">Наведи на точки для деталей</p>
+                <h2 id="emotion-title">💫 Эмоциональное Путешествие</h2>
+                <p class="hint" id="emotion-hint">Наведи на точки для деталей</p>
             </div>
             <div class="visualization-container">
                 <canvas id="emotionChart"></canvas>
             </div>
         </section>
-
         <!-- Archetype Wheel секция -->
         <section class="section">
             <div class="section-header">
-                <h2>🎴 Колесо Архетипов</h2>
-                <p class="hint">Кликай на архетипы</p>
+                <h2 id="archetype-title">🎴 Колесо Архетипов</h2>
+                <p class="hint" id="archetype-hint">Кликай на архетипы</p>
             </div>
             <div id="archetypeWheel" class="visualization-container"></div>
         </section>
-
         <!-- Symbol Network секция -->
         <section class="section">
             <div class="section-header">
-                <h2>🌐 Сеть Связей</h2>
-                <p class="hint">Символы и их взаимодействия</p>
+                <h2 id="network-title">🌐 Сеть Связей</h2>
+                <p class="hint" id="network-hint">Символы и их взаимодействия</p>
             </div>
             <div id="symbolNetwork" class="visualization-container"></div>
         </section>
-
         <!-- Insights Panel -->
         <section class="section">
             <div class="section-header">
-                <h2>💡 Ключевые Инсайты</h2>
+                <h2 id="insights-title">💡 Ключевые Инсайты</h2>
             </div>
             <div id="insightsPanel" class="insights-grid"></div>
         </section>
-
         <!-- Dream Metrics -->
         <section class="section">
             <div class="section-header">
-                <h2>📊 Метрики Сна</h2>
+                <h2 id="metrics-title">📊 Метрики Сна</h2>
             </div>
             <div id="metricsPanel" class="metrics-grid"></div>
         </section>
-
         <!-- Футер -->
         <footer class="footer">
-            <p>✨ Оракул Снов • Интерактивная визуализация</p>
+            <p id="footer-text">✨ Оракул Снов • Интерактивная визуализация</p>
         </footer>
     </div>
-
     <!-- Модальное окно для деталей -->
     <div id="modal" class="modal">
         <div class="modal-content">
@@ -102,7 +93,6 @@
             <div id="modalBody"></div>
         </div>
     </div>
-
     <!-- Главный скрипт -->
     <script src="app.js"></script>
 </body>
