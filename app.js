@@ -1,3 +1,74 @@
+// ========== МУЛЬТИЯЗЫЧНОСТЬ ==========
+function getLanguage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const lang = urlParams.get('lang');
+    return (lang === 'en') ? 'en' : 'ru';
+}
+
+const currentLanguage = getLanguage();
+console.log('🌐 Язык интерфейса:', currentLanguage);
+
+const translations = {
+    ru: {
+        'loader-text': 'Загружаем твой сон...',
+        'main-title': '🌙 Визуализация Сна',
+        'main-subtitle': 'Интерактивное исследование подсознания',
+        'mindmap-title': '🧠 Карта Символов',
+        'mindmap-hint': 'Кликай на символы для подробностей',
+        'emotion-title': '💫 Эмоциональное Путешествие',
+        'emotion-hint': 'Наведи на точки для деталей',
+        'archetype-title': '🎴 Колесо Архетипов',
+        'archetype-hint': 'Кликай на архетипы',
+        'network-title': '🌐 Сеть Связей',
+        'network-hint': 'Символы и их взаимодействия',
+        'insights-title': '💡 Ключевые Инсайты',
+        'metrics-title': '📊 Метрики Сна',
+        'footer-text': '✨ Оракул Снов • Интерактивная визуализация',
+        'dream-center': 'СОН',
+        'emotion-intensity': 'Интенсивность эмоций',
+        'emotional-balance': 'Эмоциональный баланс',
+        'intensity': 'Интенсивность',
+        'lucidity': 'Осознанность',
+        'symbol-density': 'Плотность символов'
+    },
+    en: {
+        'loader-text': 'Loading your dream...',
+        'main-title': '🌙 Dream Visualization',
+        'main-subtitle': 'Interactive exploration of the subconscious',
+        'mindmap-title': '🧠 Symbol Map',
+        'mindmap-hint': 'Click on symbols for details',
+        'emotion-title': '💫 Emotional Journey',
+        'emotion-hint': 'Hover over points for details',
+        'archetype-title': '🎴 Archetype Wheel',
+        'archetype-hint': 'Click on archetypes',
+        'network-title': '🌐 Connection Network',
+        'network-hint': 'Symbols and their interactions',
+        'insights-title': '💡 Key Insights',
+        'metrics-title': '📊 Dream Metrics',
+        'footer-text': '✨ Dream Oracle • Interactive Visualization',
+        'dream-center': 'DREAM',
+        'emotion-intensity': 'Emotion Intensity',
+        'emotional-balance': 'Emotional Balance',
+        'intensity': 'Intensity',
+        'lucidity': 'Lucidity',
+        'symbol-density': 'Symbol Density'
+    }
+};
+
+function t(key) {
+    return translations[currentLanguage][key] || translations['ru'][key] || key;
+}
+
+function applyTranslations() {
+    Object.keys(translations[currentLanguage]).forEach(key => {
+        const element = document.getElementById(key);
+        if (element) {
+            element.textContent = translations[currentLanguage][key];
+        }
+    });
+    console.log('✅ Переводы применены:', currentLanguage);
+}
+
 // ========== TELEGRAM WEBAPP ИНТЕГРАЦИЯ ==========
 let tg = window.Telegram?.WebApp || {
     expand: function() { console.log('Expand not available'); },
@@ -98,6 +169,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Применяем тему Telegram
     applyTelegramTheme();
+    
+    // Применяем переводы
+    applyTranslations();
     
     try {
         await loadDreamData();
@@ -327,7 +401,7 @@ function renderMindMap() {
         .style('background', 'transparent');
     
     const root = {
-        name: 'СОН',
+        name: t('dream-center'),
         children: dreamData.symbols.map(s => ({
             name: s.name,
             meaning: s.meaning
@@ -404,7 +478,7 @@ function renderEmotionChart() {
         data: {
             labels: dreamData.emotions.map(e => e.time),
             datasets: [{
-                label: 'Интенсивность эмоций',
+                label: t('emotion-intensity'),
                 data: dreamData.emotions.map(e => e.intensity),
                 borderColor: '#ec4899',
                 backgroundColor: 'rgba(236, 72, 153, 0.1)',
@@ -648,10 +722,10 @@ function renderMetrics() {
     container.innerHTML = '';
     
     const metrics = [
-        { label: 'Эмоциональный баланс', value: dreamData.metrics.emotionalBalance },
-        { label: 'Интенсивность', value: dreamData.metrics.intensity },
-        { label: 'Осознанность', value: dreamData.metrics.lucidity },
-        { label: 'Плотность символов', value: dreamData.metrics.symbolDensity }
+        { label: t('emotional-balance'), value: dreamData.metrics.emotionalBalance },
+        { label: t('intensity'), value: dreamData.metrics.intensity },
+        { label: t('lucidity'), value: dreamData.metrics.lucidity },
+        { label: t('symbol-density'), value: dreamData.metrics.symbolDensity }
     ];
     
     metrics.forEach(metric => {
