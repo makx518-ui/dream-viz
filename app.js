@@ -2,7 +2,8 @@
 function getLanguage() {
     const urlParams = new URLSearchParams(window.location.search);
     const lang = urlParams.get('lang');
-    return (lang === 'en') ? 'en' : 'ru';
+    // EN по умолчанию, RU только для русских
+    return (lang === 'ru') ? 'ru' : 'en';
 }
 
 const currentLanguage = getLanguage();
